@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KYStore</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="apple-touch-icon" sizes="180x180" href="images/favicon_io/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicon_io/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_io/favicon-16x16.png">
+        <link rel="manifest" href="images/favicon_io/site.webmanifest">
+        <script src="script.js" defer></script>
+    </head>
+
+    <header class="header">
+        <div class="logo">
+            <a href="index.html">
+                <h1>KYSTORE</h1>
+            </a>
+        </div>
+        <nav class="navigation">
+            <ul>
+              <li><a href="catalog.html">Catalog</a></li>
+              <li><a href="configurator.html">PC Configurator</a></li>
+              <li><a href="cart.html">Cart</a></li>
+            </ul>
+          </nav>
+        <div class="cart">
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </div>
+    </header>
+        
+<body>
+
+
+    <main>
+        <section id="catalog" class="catalog">
+            <h2>Catalog</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="images/laptop.jpg" alt="Laptop">
+                    <h3>Laptop</h3>
+                    <p>Overprice and overheat</p>
+                    <p class="price">500 $</p>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/keyboard.png" alt="Keyboard">
+                    <h3>Keyboard</h3>
+                    <p>Mechanic and gay light</p>
+                    <p class="price">5 $</p>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/mouse.png" alt="Mouse">
+                    <h3>Mouse</h3>
+                    <p>Big and comfortable</p>
+                    <p class="price">3 $</p>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/monitor.jpg" alt="Monitor">
+                    <h3>Monitor</h3>
+                    <p>4K, Shrexs</p>
+                    <p class="price">300 $</p>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 KYStore. All rights reserved.</p>
+    </footer>
+</body>
+</html>

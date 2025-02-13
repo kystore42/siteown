@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Configurator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon_io/site.webmanifest">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <script src="configurator.js" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cpuSelect = document.getElementById("cpu");
+            const motherboardSelect = document.getElementById("motherboard");
+            const ramSelect = document.getElementById("ram");
+            const compatibilityData = {
+                "intel-i9": { motherboards: ["mb-intel-z790", "mb-intel-b760", "mb-intel-h770"], ram: ["ram-ddr5-16", "ram-ddr5-32", "ram-ddr5-64"] },
+                "intel-i7": { motherboards: ["mb-intel-z690", "mb-intel-b660", "mb-intel-h670"], ram: ["ram-ddr4-16", "ram-ddr4-32", "ram-ddr4-64"] },
+                "amd-ryzen9": { motherboards: ["mb-amd-x670", "mb-amd-b650", "mb-amd-x690"], ram: ["ram-ddr5-16", "ram-ddr5-32", "ram-ddr5-64"] },
+                "amd-ryzen7": { motherboards: ["mb-amd-b550", "mb-amd-x570", "mb-amd-x590"], ram: ["ram-ddr4-16", "ram-ddr4-32", "ram-ddr4-64"] }
+            };
+
+            cpuSelect.addEventListener("change", function () {
+                const selectedCPU = cpuSelect.value;
+                if (selectedCPU && compatibilityData[selectedCPU]) {
+                    motherboardSelect.innerHTML = "<option value=''>Select Motherboard</option>";
+                    compatibilityData[selectedCPU].motherboards.forEach(mb => {
+                        motherboardSelect.innerHTML += `<option value="${mb}">${mb.replace("mb-", "").toUpperCase()}</option>`;
+                    });
+                    motherboardSelect.disabled = false;
+
+                    ramSelect.innerHTML = "<option value=''>Select RAM</option>";
+                    compatibilityData[selectedCPU].ram.forEach(ram => {
+                        ramSelect.innerHTML += `<option value="${ram}">${ram.replace("ram-", "").toUpperCase()}</option>`;
+                    });
+                    ramSelect.disabled = false;
+                } else {
+                    motherboardSelect.disabled = true;
+                    ramSelect.disabled = true;
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <a href="index.html"><h1>KYSTORE</h1></a>
+        </div>
+        <nav class="navigation">
+            <ul>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="configurator.html">PC Configurator</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+        </nav>
+        <div class="cart">
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+        </div>
+    </header>
+
+    <main class="configurator">
+        <h2>Build Your Own PC</h2>
+        <form id="pc-configurator-form">
+            <label for="cpu">Processor:</label>
+            <select id="cpu" name="cpu">
+                <option value="">Select Processor</option>
+                <option value="intel-i9">Intel Core i9</option>
+                <option value="intel-i7">Intel Core i7</option>
+                <option value="amd-ryzen9">AMD Ryzen 9</option>
+                <option value="amd-ryzen7">AMD Ryzen 7</option>
+            </select>
+
+            <label for="motherboard">Motherboard:</label>
+            <select id="motherboard" name="motherboard" disabled>
+                <option value="">Select Motherboard</option>
+            </select>
+
+            <label for="gpu">Graphics Card:</label>
+            <select id="gpu" name="gpu">
+                <option value="">Select GPU</option>
+                <option value="nvidia-rtx4090">NVIDIA RTX 4090</option>
+                <option value="nvidia-rtx4080">NVIDIA RTX 4080</option>
+                <option value="amd-rx7900xt">AMD RX 7900 XT</option>
+                <option value="amd-rx7800xt">AMD RX 7800 XT</option>
+                <option value="nvidia-rtx4070">NVIDIA RTX 4070</option>
+            </select>
+
+            <label for="ram">RAM:</label>
+            <select id="ram" name="ram" disabled>
+                <option value="">Select RAM</option>
+            </select>
+
+            <label for="storage">Storage:</label>
+            <select id="storage" name="storage">
+                <option value="">Select Storage</option>
+                <option value="1tb-ssd">1TB NVMe SSD</option>
+                <option value="2tb-ssd">2TB NVMe SSD</option>
+                <option value="4tb-hdd">4TB HDD</option>
+                <option value="500gb-ssd">500GB NVMe SSD</option>
+                <option value="8tb-hdd">8TB HDD</option>
+            </select>
+
+            <button type="submit" class="btn">Add to Cart</button>
+        </form>
+    </main>
+
+
+    <footer class="footer">
+        <p>&copy; 2025 KYStore. All rights reserved.</p>
+    </footer>
+</body>
+</html>
