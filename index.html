@@ -1,59 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYStore</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_io/favicon-16x16.png">
-    <link rel="manifest" href="images/favicon_io/site.webmanifest">
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-    <script src="script.js" defer></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Repair Center Clicker</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <a href="index.html"><h1>KYSTORE</h1></a>
+  <header>
+    <div class="brand">
+      <div class="logo">🔧</div>
+      <div>
+        <h1>Repair Center Clicker</h1>
+        <div class="tiny">Click to repair devices, hire staff and upgrade your tools.</div>
+      </div>
+    </div>
+
+    <div class="stats" id="statsTop">
+      <div class="pill" title="Balance in PLN">zł <b id="money">0</b></div>
+      <div class="pill" title="Income per click">+/click <b id="perClick">1</b></div>
+      <div class="pill" title="Passive income per second">+/sec <b id="perSec">0</b></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <section class="card">
+        <div class="content">
+          <button id="repairBtn" class="big-btn">Repair a device</button>
+          <div class="sub">Press the button (or <b>Space</b>) to complete orders and earn money. Sometimes you trigger a "Quick Fix" x5.</div>
+
+          <div id="activeEvents" class="active-events"></div>
         </div>
-        <nav class="navigation">
-            <ul>
-                <li><a href="catalog.html">Catalog</a></li>
-                <li><a href="configurator.html">PC Configurator</a></li>
-                <li><a href="cart.html">Cart</a></li>
-            </ul>
-        </nav>
-        <div class="cart">
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+      </section>
+
+      <aside class="card">
+        <h2>Shop</h2>
+        <div class="content shop" id="shop"></div>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top:24px">
+      <div class="content grid-2">
+        <div>
+          <h2>Tools (click income)</h2>
+          <div id="upgrades" class="shop"></div>
         </div>
-    </header>
+        <div>
+          <h2>Staff (passive income)</h2>
+          <div id="workers" class="shop"></div>
+        </div>
+      </div>
+    </section>
 
-    <main>
-        <section class="text-container">
-            <div>
-                <h2>Worst product in the world</h2>
-                <p>PC, laptop and all for overprice</p>
-                <a href="catalog.html" class="btn">Look at this mf</a>
-            </div>
-        </section>
+    <section class="card" style="margin-top:24px">
+      <div class="content">
+        <div class="toolbar">
+          <button id="saveBtn">Save</button>
+          <button id="resetBtn">Reset Progress</button>
+        </div>
+        <p class="tiny">The game autosaves every 5 seconds.</p>
 
-        <section id="about" class="about">
-            <h2>About</h2>
-            <p>KYStore: overpriced, overheating products with unfriendly service. We hate all our customers.</p>
-        </section>
+        <h3 style="margin-top:12px">Events Log</h3>
+        <div id="eventsLog" class="eventsLog"></div>
+      </div>
+    </section>
+  </main>
 
-        <section id="contact" class="contact">
-            <h2>Contact</h2>
-            <p>Contact us:</p>
-            <p>Email: kys@gmail.com</p>
-            <p>Phone: +888 888 888</p>
-        </section>
-    </main>
+  <footer>
+    <div>v1.2 • Events, multipliers, notifications.</div>
+    <div>Made by DEVRIP👹.</div>
+  </footer>
 
-    <footer class="footer">
-        <p>&copy; 2025 KYStore. All rights reserved.</p>
-    </footer>
+  <script src="script.js"></script>
 </body>
 </html>
