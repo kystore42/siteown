@@ -4,11 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WSD Service</title>
-<link rel="stylesheet" href="style.css">
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* Прогресс-бар */
+.progress-bar-container {
+    width: 100%;
+    background-color: #e5e7eb; /* Tailwind gray-200 */
+    border-radius: 8px;
+    height: 16px;
+    margin-top: 4px;
+}
+.progress-bar {
+    height: 16px;
+    border-radius: 8px;
+    transition: width 0.1s linear;
+}
+.employee-card, .order-card {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #f9fafb; /* Tailwind gray-50 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.order-card.assigned {
+    border-left: 4px solid #10b981; /* Tailwind green-500 */
+}
+</style>
 </head>
 <body class="bg-gray-100 text-gray-900">
-<div class="container p-6 bg-white rounded-xl shadow-lg mt-8 mb-8">
+
+<div class="container mx-auto p-6 bg-white rounded-xl shadow-lg mt-8 mb-8">
     <h1 class="text-4xl font-extrabold text-center mb-6 text-gray-800">WSD Service</h1>
     <p class="text-xl text-center text-gray-600 mb-8">Симулятор сервисного центра</p>
 
@@ -23,19 +48,19 @@
             <span id="parts" class="text-3xl font-bold text-gray-700">0</span>
         </div>
     </div>
-    
+
     <!-- Shop -->
-    <div class="shop-container">
+    <div class="shop-container mb-8">
         <h2 class="text-2xl font-semibold text-center mb-4">Магазин</h2>
         <div class="flex justify-center mb-4 space-x-4">
-            <button id="shopPartsBtn" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition-colors duration-200">Детали</button>
-            <button id="shopEmployeesBtn" class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full transition-colors duration-200">Сотрудники</button>
+            <button id="shopPartsBtn" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition-colors duration-200 hover:bg-blue-600">Детали</button>
+            <button id="shopEmployeesBtn" class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full transition-colors duration-200 hover:bg-gray-400">Сотрудники</button>
         </div>
-        <div id="shopContent" class="flex flex-col space-y-4"></div>
+        <div id="shopContent" class="flex flex-col space-y-4 items-center"></div>
     </div>
 
     <!-- Employees and Orders -->
-    <div class="game-area flex flex-col md:flex-row justify-between w-full">
+    <div class="game-area flex flex-col md:flex-row justify-between w-full gap-4">
         <div class="w-full md:w-1/3 p-4 bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-semibold mb-4 text-center">Сотрудники</h2>
             <div id="employeeList" class="flex flex-col items-center gap-4"></div>
@@ -43,7 +68,7 @@
 
         <div class="w-full md:w-2/3 p-4 bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-semibold mb-4 text-center">Заказы</h2>
-            <div id="orderList" class="order-list"></div>
+            <div id="orderList" class="flex flex-col gap-4"></div>
         </div>
     </div>
 </div>
@@ -51,4 +76,3 @@
 <script src="game.js"></script>
 </body>
 </html>
-
