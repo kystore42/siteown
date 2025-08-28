@@ -147,22 +147,24 @@ function gameLoop(){
         }
     });
 
-    gameState.orders.forEach(order=>{
-        if(order.employeeId!==null){
-            const emp = gameState.employees.find(e=>e.id===order.employeeId);
-            if(emp){
-                order.timeRemaining -= emp.speed;
-                if(order.timeRemaining<=0){
-                    gameState.money += order.reward;
-                    gameState.totalOrdersCompleted++;
-                    emp.isBusy=false;
-                    emp.ordersCompleted++;
-                    if(emp.ordersCompleted%5===0 && emp.speed<10) emp.speed+=1;
-                    order.timeRemaining=0;
-                }
-            }
-        }
-    });
+gameState.orders.forEach(order=>{
+    const card = document.createElement('div');
+    card.className=`order-card ${order.employeeId!==null?'assigned':''}`;
+    const progressPercent = Math.min(100, 100 - (order.timeRemaining/order.initialTime)*100);
+    let progressColor='#10b981';
+    if(progressPercent>50) progressColor='#facc15';
+    if(progressPercent>90) progressColor='#ef4444';
+    card.innerHTML=`
+        <div class="text-lg font-semibold">Заказ #${order.id}</div>
+        <div class="text-sm text-gray-500">Техника: ${order.type}</div>
+        <div class="text-sm text-gray-500">Награда: 💰${order.reward}</div>
+        <div class="text-sm text-gray-500">Нужно деталей: 🔋${order.partsRequired}</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width:${progressPercent}%;background-color:${progressColor}"></div>
+        </div>
+    `;
+    orderListElement.appendChild(card);
+});
 
     gameState.orders = gameState.orders.filter(o=>o.timeRemaining>0);
 
@@ -262,4 +264,5 @@ shopEmployeesBtn.addEventListener('click',()=>{gameState.currentShopTab='employe
     setInterval(gameLoop, 100);
     setInterval(saveGame, 1000);
 });
+
 
