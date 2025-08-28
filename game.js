@@ -74,57 +74,49 @@ function updateUI() {
     });
 }
 
-// --------- Магазин ---------
+// --------- Магазин: создаём кнопки один раз ---------
 function renderShop() {
     shopContentElement.innerHTML = '';
 
     if (gameState.currentShopTab === 'parts') {
-        // Контейнер для нескольких кнопок покупки деталей
         const container = document.createElement('div');
         container.className = 'flex gap-2 flex-wrap';
-
-        // Кнопки покупки 1, 5 и 10 деталей
-        [1, 5, 10].forEach(amount => {
+        [1,5,10].forEach(amount => {
             const btn = document.createElement('button');
-            btn.textContent = `Купить ${amount} 🔋 (💰${gameState.partCost * amount})`;
+            btn.textContent = `Купить ${amount} 🔋 (💰${gameState.partCost*amount})`;
             btn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md';
-            btn.disabled = gameState.money < gameState.partCost * amount;
-            if (btn.disabled) {
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                btn.title = 'Недостаточно денег';
-            }
+            btn.disabled = gameState.money < gameState.partCost*amount;
+            if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
             btn.addEventListener('click', () => buyParts(amount));
             container.appendChild(btn);
         });
-
         shopContentElement.appendChild(container);
-
     } else {
-        // Кнопка найма сотрудника
         const btn = document.createElement('button');
-        btn.id = 'hireEmpBtn';
         btn.textContent = `Нанять сотрудника (💰${gameState.employeeHireCost})`;
         btn.className = 'bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
         btn.disabled = gameState.money < gameState.employeeHireCost;
-        if (btn.disabled) {
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            btn.title = 'Недостаточно денег';
-        }
+        if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
         btn.addEventListener('click', hireEmployee);
         shopContentElement.appendChild(btn);
     }
 
-    // кнопка сброса
     const resetBtn = document.createElement('button');
     resetBtn.textContent = 'Сбросить игру';
     resetBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md mt-4';
     resetBtn.addEventListener('click', resetGame);
     shopContentElement.appendChild(resetBtn);
-
-    // Слушатели кнопок (добавляем только один раз)
-    document.getElementById('buyPartBtn')?.addEventListener('click', buyPart);
-    document.getElementById('hireEmpBtn')?.addEventListener('click', hireEmployee);
 }
+
+ shopPartsBtn.addEventListener('click', ()=>{
+    gameState.currentShopTab='parts';
+    renderShop(); // только один раз при смене вкладки
+});
+shopEmployeesBtn.addEventListener('click', ()=>{
+    gameState.currentShopTab='employees';
+    renderShop();
+});
+
     
 // --------- Покупка деталей с выбором количества ---------
 function buyParts(amount) {
@@ -298,6 +290,7 @@ shopEmployeesBtn.addEventListener('click',()=>{gameState.currentShopTab='employe
     setInterval(gameLoop, 100);
     setInterval(saveGame, 1000);
 });
+
 
 
 
