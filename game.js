@@ -24,15 +24,15 @@ const ORDER_TEMPLATES = [
 // --------- Аватары сотрудников ---------
 const EMPLOYEE_AVATARS = ['👨‍🔧','👩‍🔧','👨‍🔬','👩‍🔬','🧑‍💻','👨‍🏭'];
 
-// --------- DOM элементы ---------
-const moneyElement = document.getElementById('money');
-const partsElement = document.getElementById('parts');
-const employeeListElement = document.getElementById('employeeList');
-const orderListElement = document.getElementById('orderList');
-const shopPartsBtn = document.getElementById('shopPartsBtn');
-const shopEmployeesBtn = document.getElementById('shopEmployeesBtn');
-const shopContentElement = document.getElementById('shopContent');
-
+document.addEventListener('DOMContentLoaded', () => {
+    // --------- DOM элементы ---------
+    const moneyElement = document.getElementById('money');
+    const partsElement = document.getElementById('parts');
+    const employeeListElement = document.getElementById('employeeList');
+    const orderListElement = document.getElementById('orderList');
+    const shopPartsBtn = document.getElementById('shopPartsBtn');
+    const shopEmployeesBtn = document.getElementById('shopEmployeesBtn');
+    const shopContentElement = document.getElementById('shopContent');
 // --------- Обновление UI без перерисовки кнопок ---------
 function updateUI() {
     moneyElement.textContent = gameState.money;
@@ -253,12 +253,13 @@ shopPartsBtn.addEventListener('click',()=>{gameState.currentShopTab='parts'; ren
 shopEmployeesBtn.addEventListener('click',()=>{gameState.currentShopTab='employees'; renderShop();});
 
 // --------- Инициализация ---------
-loadGame();
-if(gameState.employees.length===0){
-    const avatar=EMPLOYEE_AVATARS[Math.floor(Math.random()*EMPLOYEE_AVATARS.length)];
-    gameState.employees.push({id:'emp-0',isBusy:false,speed:1,ordersCompleted:0,avatar});
-}
-updateUI();
+    loadGame();
+    if (gameState.employees.length === 0) {
+        const avatar = EMPLOYEE_AVATARS[Math.floor(Math.random() * EMPLOYEE_AVATARS.length)];
+        gameState.employees.push({ id: 'emp-0', isBusy: false, speed: 1, ordersCompleted: 0, avatar });
+    }
+    updateUI();
+    setInterval(gameLoop, 100);
+    setInterval(saveGame, 1000);
+});
 
-setInterval(gameLoop,100);
-setInterval(saveGame,1000);
