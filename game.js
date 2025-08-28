@@ -78,19 +78,42 @@ function updateUI() {
 function renderShop() {
     shopContentElement.innerHTML='';
 
-    if(gameState.currentShopTab==='parts'){
-        const btn=document.createElement('button');
-        btn.id = 'buyPartBtn';
-        btn.textContent=`Купить деталь (💰${gameState.partCost})`;
-        btn.className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        shopContentElement.appendChild(btn);
-    }else{
-        const btn=document.createElement('button');
-        btn.id = 'hireEmpBtn';
-        btn.textContent=`Нанять сотрудника (💰${gameState.employeeHireCost})`;
-        btn.className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        shopContentElement.appendChild(btn);
+if(gameState.currentShopTab==='parts'){
+    const container = document.createElement('div');
+    container.className = 'flex gap-2';
+
+    [1, 5, 10].forEach(amount => {
+        const btn = document.createElement('button');
+        btn.textContent = `Купить ${amount} 🔋 (💰${gameState.partCost*amount})`;
+        btn.className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md';
+        btn.disabled = gameState.money < gameState.partCost * amount;
+        if(btn.disabled){
+            btn.classList.add('opacity-50','cursor-not-allowed');
+            btn.title='Недостаточно денег';
+        }
+        btn.addEventListener('click', () => buyParts(amount));
+        container.appendChild(btn);
+    });
+
+    shopContentElement.appendChild(container);
+} else {
+    const btn = document.createElement('button');
+    btn.id = 'hireEmpBtn';
+    btn.textContent=`Нанять сотрудника (💰${gameState.employeeHireCost})`;
+    btn.className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
+    shopContentElement.appendChild(btn);
+}
+
+function buyParts(amount){
+    const totalCost = gameState.partCost * amount;
+    if(gameState.money >= totalCost){
+        gameState.money -= totalCost;
+        gameState.parts += amount;
+        updateUI();
+    } else {
+        showNotification('Недостаточно денег!','red');
     }
+}
 
     // кнопка сброса
     const resetBtn = document.createElement('button');
@@ -264,5 +287,6 @@ shopEmployeesBtn.addEventListener('click',()=>{gameState.currentShopTab='employe
     setInterval(gameLoop, 100);
     setInterval(saveGame, 1000);
 });
+
 
 
