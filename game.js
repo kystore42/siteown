@@ -49,7 +49,7 @@ function updateUI() {
     moneyElement.textContent = gameState.money;
     partsElement.textContent = gameState.parts;
 
-    // Сотрудники
+    // сотрудники
     employeeListElement.innerHTML = '';
     gameState.employees.forEach((emp,index)=>{
         const card = document.createElement('div');
@@ -63,7 +63,7 @@ function updateUI() {
         employeeListElement.appendChild(card);
     });
 
-    // Заказы
+    // заказы
     orderListElement.innerHTML='';
     gameState.orders.forEach(order=>{
         const card = document.createElement('div');
@@ -83,11 +83,9 @@ function updateUI() {
         `;
         orderListElement.appendChild(card);
     });
-
-    renderShop();
 }
 
-// --------- Магазин ---------
+// Рендер магазина вызываем только при смене вкладки или после покупки/ресета
 function renderShop() {
     shopContentElement.innerHTML='';
 
@@ -110,11 +108,8 @@ function renderShop() {
         const btn=document.createElement('button');
         btn.textContent=`Нанять сотрудника (💰${gameState.employeeHireCost})`;
         btn.className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        if(gameState.money<gameState.employeeHireCost){
-            btn.disabled=true;
-            btn.classList.add('opacity-50','cursor-not-allowed');
-            btn.title='Недостаточно денег';
-        }
+        btn.disabled = gameState.money<gameState.employeeHireCost;
+        if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
         btn.dataset.action='hireEmployee';
         shopContentElement.appendChild(btn);
 
@@ -122,11 +117,8 @@ function renderShop() {
         const btn=document.createElement('button');
         btn.textContent=`Ускорение сотрудников (💰${GAME_CONFIG.upgradeCost})`;
         btn.className='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        if(gameState.money< GAME_CONFIG.upgradeCost){
-            btn.disabled=true;
-            btn.classList.add('opacity-50','cursor-not-allowed');
-            btn.title='Недостаточно денег';
-        }
+        btn.disabled = gameState.money< GAME_CONFIG.upgradeCost;
+        if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
         btn.dataset.action='upgradeEmployees';
         shopContentElement.appendChild(btn);
     }
@@ -138,6 +130,21 @@ function renderShop() {
     resetBtn.dataset.action='resetGame';
     shopContentElement.appendChild(resetBtn);
 }
+
+// Делегирование клика
+shopContentElement.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if(!btn || btn.disabled) return;
+
+    const action = btn.dataset.action;
+    if(action==='buyPart') buyParts(parseInt(btn.dataset.amount));
+    else if(action==='hireEmployee') hireEmployee();
+    else if(action==='upgradeEmployees') upgradeEmployees();
+    else if(action==='resetGame') resetGame();
+
+    // После действия рендерим магазин заново
+    renderShop();
+});
 
 // --------- Делегирование событий магазина ---------
 shopContentElement.addEventListener('click', e => {
@@ -309,6 +316,7 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
 
