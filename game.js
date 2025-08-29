@@ -118,7 +118,7 @@ function renderShop(){
         for(const part in GAME_CONFIG.partCost){
             const partContainer = document.createElement('div');
             partContainer.className = 'flex flex-col gap-1 items-center';
-            [1,5,10].forEach(amount=>{
+            [1,10,100].forEach(amount=>{
                 const btn = document.createElement('button');
                 btn.textContent = `${PART_ICONS[part]} x${amount} (💰${GAME_CONFIG.partCost[part]*amount})`;
                 btn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-md';
@@ -321,3 +321,4 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
