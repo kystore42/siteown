@@ -174,7 +174,7 @@ function createOrder(){
 function assignEmployeeToOrder(empId, orderId){
     const emp = gameState.employees.find(e=>e.id===empId);
     const order = gameState.orders.find(o=>o.id===orderId);
-    if(!emp||!order) return;
+    if(!emp || !order) return;
     if(emp.isBusy){ showNotification('Сотрудник занят','red'); return; }
     if(order.employeeId!==null){ showNotification('Заказ уже выполняется','red'); return; }
 
@@ -192,7 +192,7 @@ function assignEmployeeToOrder(empId, orderId){
 
     emp.isBusy = true;
     order.employeeId = emp.id;
-    if(!order.timeRemaining||order.timeRemaining<=0) order.timeRemaining = order.initialTime;
+    order.timeRemaining = order.initialTime; // <-- начинаем процесс выполнения
 
     updateUI();
 }
@@ -346,26 +346,41 @@ function resetGame(){
     updateUI(); renderEmployees(); renderShop();
 }
 
-// --------- Игровой цикл ---------
-function gameLoop(){
-    if(Date.now()-gameState.lastOrderTime>GAME_CONFIG.orderInterval){ createOrder(); gameState.lastOrderTime=Date.now(); }
-    gameState.orders.forEach(order=>{
-        if(order.employeeId){
-            const emp = gameState.employees.find(e=>e.id===order.employeeId);
-            if(emp){
-                const speedWithPerks = emp.speed*(1+(emp.perks.speedBonus||0));
-                order.timeRemaining -= speedWithPerks;
-                if(order.timeRemaining<=0){
-                    gameState.money+=order.reward;
-                    gameState.totalOrdersCompleted++;
-                    emp.isBusy=false;
-                    emp.ordersCompleted++;
-                    if(emp.ordersCompleted%GAME_CONFIG.employeeSpeedIncrementEvery===0 && emp.speed<GAME_CONFIG.employeeMaxSpeed) emp.speed+=1;
+function gameLoop() {
+    // Создаём новые заказы
+    if (Date.now() - gameState.lastOrderTime > GAME_CONFIG.orderInterval) {
+        createOrder();
+        gameState.lastOrderTime = Date.now();
+    }
+
+    gameState.orders.forEach(order => {
+        if (order.employeeId) {
+            const emp = gameState.employees.find(e => e.id === order.employeeId);
+            if (!emp) return;
+
+            const speedWithPerks = emp.speed * (1 + (emp.perks?.speedBonus || 0));
+            order.timeRemaining -= speedWithPerks;
+
+            if (order.timeRemaining <= 0) {
+                // Заказ выполнен
+                gameState.money += order.reward;
+                gameState.totalOrdersCompleted++;
+                emp.isBusy = false;
+                emp.ordersCompleted++;
+
+                if (emp.ordersCompleted % GAME_CONFIG.employeeSpeedIncrementEvery === 0 &&
+                    emp.speed < GAME_CONFIG.employeeMaxSpeed) {
+                    emp.speed += 1;
                 }
+
+                order.completed = true; // пометка, что заказ готов к удалению
             }
         }
     });
-    gameState.orders = gameState.orders.filter(o=>o.timeRemaining>0);
+
+    // Удаляем только завершённые заказы
+    gameState.orders = gameState.orders.filter(o => !o.completed);
+
     updateUI();
     saveGame();
 }
@@ -406,4 +421,5 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
