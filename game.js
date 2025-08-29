@@ -251,6 +251,12 @@ function renderShop(){
         btn3.dataset.action='expandOrders';
         btn3.disabled = gameState.money < GAME_CONFIG.orderIncreaseCost;
         shopContentElement.appendChild(btn3);
+
+        const btnAutomation = document.createElement('button');
+        btnAutomation.textContent = `Автоматизация сотрудника (💰5000)`;
+        btnAutomation.className='bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full mt-2';
+        btnAutomation.dataset.action='buyAutomation';
+        shopContentElement.appendChild(btnAutomation);
     }
 
     const resetBtn = document.createElement('button');
@@ -269,6 +275,7 @@ shopContentElement.addEventListener('click', e=>{
         case 'upgradeEmployees': upgradeEmployees(); break;
         case 'buySupply': buySupply(); break;
         case 'expandOrders': expandOrders(); break;
+        case 'buyAutomation': buyAutomation(); break;
         case 'resetGame': resetGame(); break;
     }
     renderShop();
@@ -340,6 +347,25 @@ function buySupply(){
     showNotification('Регулярные поставки активированы!','green');
 }
 
+function buyAutomation(){
+    if(gameState.money < 5000){
+        showNotification('Недостаточно денег','red');
+        return;
+    }
+    gameState.money -= 5000;
+
+    // Даем автоматизацию первому свободному сотруднику
+    const emp = gameState.employees.find(e => !e.autoWork);
+    if(emp){
+        emp.autoWork = true;
+        showNotification(`${emp.avatar} теперь выполняет заказы самостоятельно!`, 'green');
+    } else {
+        showNotification('Все сотрудники уже автоматизированы', 'yellow');
+    }
+
+    updateUI();
+}
+
 function expandOrders(){
     if(gameState.money>=GAME_CONFIG.orderIncreaseCost){
         gameState.money -= GAME_CONFIG.orderIncreaseCost;
@@ -370,34 +396,37 @@ function gameLoop() {
         gameState.lastOrderTime = Date.now();
     }
 
+    // Автоматическое назначение сотрудников на заказы
+    gameState.employees.forEach(emp => {
+        if(emp.autoWork && !emp.isBusy){
+            const order = gameState.orders.find(o => !o.employeeId);
+            if(order) assignEmployeeToOrder(emp.id, order.id);
+        }
+    });
+
+    // Выполнение заказов
     gameState.orders.forEach(order => {
-        if (order.employeeId) {
-            const emp = gameState.employees.find(e => e.id === order.employeeId);
-            if (!emp) return;
+        if(order.employeeId){
+            const emp = gameState.employees.find(e=>e.id===order.employeeId);
+            if(emp){
+                const speedWithPerks = emp.speed * (1 + (emp.perks?.speedBonus || 0));
+                order.timeRemaining -= speedWithPerks;
 
-            const speedWithPerks = emp.speed * (1 + (emp.perks?.speedBonus || 0));
-            order.timeRemaining -= speedWithPerks;
-
-            if (order.timeRemaining <= 0) {
-                // Заказ выполнен
-                gameState.money += order.reward;
-                gameState.totalOrdersCompleted++;
-                emp.isBusy = false;
-                emp.ordersCompleted++;
-
-                if (emp.ordersCompleted % GAME_CONFIG.employeeSpeedIncrementEvery === 0 &&
-                    emp.speed < GAME_CONFIG.employeeMaxSpeed) {
-                    emp.speed += 1;
-                
+                if(order.timeRemaining <= 0 && !order.completed){
+                    gameState.money += order.reward;
+                    gameState.totalOrdersCompleted++;
+                    emp.isBusy = false;
+                    emp.ordersCompleted++;
+                    if(emp.ordersCompleted % GAME_CONFIG.employeeSpeedIncrementEvery === 0 &&
+                        emp.speed < GAME_CONFIG.employeeMaxSpeed) emp.speed += 1;
+                    order.completed = true;
                 }
-                renderEmployees();
-                order.completed = true; // пометка, что заказ готов к удалению
             }
         }
     });
 
-    // Удаляем только завершённые заказы
-    gameState.orders = gameState.orders.filter(o => !o.completed);
+    // Удаляем завершённые заказы
+    gameState.orders = gameState.orders.filter(o=>!o.completed);
 
     updateUI();
     saveGame();
@@ -439,7 +468,6 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
-
 
 
 
