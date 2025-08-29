@@ -13,7 +13,7 @@ const GAME_CONFIG = {
         { type: 'ПК', partsRequired: 3, initialTime: 200, reward: 75 },
         { type: 'Сервер', partsRequired: 5, initialTime: 300, reward: 150 }
     ],
-    employeeSpeedIncrementEvery: 5, // каждый n заказов +1 скорость
+    employeeSpeedIncrementEvery: 5,
     employeeMaxSpeed: 10
 };
 
@@ -49,7 +49,7 @@ function updateUI() {
     moneyElement.textContent = gameState.money;
     partsElement.textContent = gameState.parts;
 
-    // сотрудники
+    // Сотрудники
     employeeListElement.innerHTML = '';
     gameState.employees.forEach((emp,index)=>{
         const card = document.createElement('div');
@@ -63,7 +63,7 @@ function updateUI() {
         employeeListElement.appendChild(card);
     });
 
-    // заказы
+    // Заказы
     orderListElement.innerHTML='';
     gameState.orders.forEach(order=>{
         const card = document.createElement('div');
@@ -85,7 +85,7 @@ function updateUI() {
     });
 }
 
-// Рендер магазина вызываем только при смене вкладки или после покупки/ресета
+// --------- Магазин ---------
 function renderShop() {
     shopContentElement.innerHTML='';
 
@@ -131,7 +131,7 @@ function renderShop() {
     shopContentElement.appendChild(resetBtn);
 }
 
-// Делегирование клика
+// --------- Делегирование клика магазина ---------
 shopContentElement.addEventListener('click', e => {
     const btn = e.target.closest('button');
     if(!btn || btn.disabled) return;
@@ -142,21 +142,7 @@ shopContentElement.addEventListener('click', e => {
     else if(action==='upgradeEmployees') upgradeEmployees();
     else if(action==='resetGame') resetGame();
 
-    // После действия рендерим магазин заново
-    renderShop();
-});
-
-// --------- Делегирование событий магазина ---------
-shopContentElement.addEventListener('click', e => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const action = btn.dataset.action;
-    if (!action || btn.disabled) return;
-
-    if (action === 'buyPart') buyParts(parseInt(btn.dataset.amount));
-    else if (action === 'hireEmployee') hireEmployee();
-    else if (action === 'upgradeEmployees') upgradeEmployees();
-    else if (action === 'resetGame') resetGame();
+    renderShop(); // обновляем кнопки после действия
 });
 
 // --------- Заказы ---------
@@ -269,6 +255,7 @@ function resetGame(){
 
     createOrder();
     updateUI();
+    renderShop();
 }
 
 // --------- Уведомления ---------
@@ -314,9 +301,6 @@ shopUpgradesBtn.addEventListener('click',()=>{gameState.currentShopTab='upgrades
 // --------- Инициализация ---------
 loadGame();
 updateUI();
+renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
-
-
-
-
