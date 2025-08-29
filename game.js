@@ -10,15 +10,51 @@ let gameState = {
     totalOrdersCompleted: 0,
     employeeHireCost: 45,
     partCost: 10,
-    currentShopTab: 'parts'
+    currentShopTab: 'parts',
+    purchasedUpgrades: [],
+    maxOrders: 5 // по умолчанию
 };
-
 // --------- Шаблоны заказов ---------
 const ORDER_TEMPLATES = [
     { type: 'Телефон', partsRequired: 1, initialTime: 100, reward: 25 },
     { type: 'Ноутбук', partsRequired: 2, initialTime: 150, reward: 50 },
     { type: 'ПК', partsRequired: 3, initialTime: 200, reward: 75 },
     { type: 'Сервер', partsRequired: 5, initialTime: 300, reward: 150 }
+];
+
+const FACTORY_UPGRADES = [
+    {
+        id: 'fasterOrders',
+        name: 'Ускорение заказов',
+        description: 'Все сотрудники работают быстрее на 20%',
+        cost: 200,
+        apply: () => {
+            gameState.employees.forEach(emp => emp.speed *= 1.2);
+        }
+    },
+    {
+        id: 'autoParts',
+        name: 'Автогенерация деталей',
+        description: 'Автоматически +1 деталь каждые 10 секунд',
+        cost: 300,
+        apply: () => {
+            if(!gameState.autoPartsInterval){
+                gameState.autoPartsInterval = setInterval(()=>{
+                    gameState.parts++;
+                    updateUI();
+                },10000);
+            }
+        }
+    },
+    {
+        id: 'extraQueue',
+        name: 'Расширение очереди заказов',
+        description: 'Максимум заказов в очереди увеличен до 10',
+        cost: 250,
+        apply: () => {
+            gameState.maxOrders = 10;
+        }
+    }
 ];
 
 // --------- Аватары сотрудников ---------
@@ -124,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------- Заказы ---------
     function createOrder(){
         let available=[ORDER_TEMPLATES[0]];
+        if(gameState.orders.length >= gameState.maxOrders) return;
         if(gameState.totalOrdersCompleted>=5) available.push(ORDER_TEMPLATES[1]);
         if(gameState.totalOrdersCompleted>=15) available.push(ORDER_TEMPLATES[2]);
         if(gameState.totalOrdersCompleted>=30) available.push(ORDER_TEMPLATES[3]);
@@ -270,3 +307,4 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(gameLoop, 100);
     setInterval(saveGame, 1000);
 });
+
