@@ -140,14 +140,14 @@ function renderShop() {
 }
 
 // --------- Делегирование событий магазина ---------
-shopContentElement.addEventListener('click', e=>{
-    const btn = e.target.closest('button');
-    if(!btn) return;
+shopContentElement.addEventListener('click', e => {
+    const action = e.target.dataset.action;
+    if (!action || e.target.disabled) return;
 
-    if(btn.dataset.action==='buyPart' && !btn.disabled) buyParts(Number(btn.dataset.amount));
-    if(btn.dataset.action==='hireEmployee' && !btn.disabled) hireEmployee();
-    if(btn.dataset.action==='upgradeEmployees' && !btn.disabled) upgradeEmployees();
-    if(btn.dataset.action==='resetGame') resetGame();
+    if (action === 'buyPart') buyPart();
+    else if (action === 'hireEmployee') hireEmployee();
+    else if (action === 'upgradeEmployees') upgradeEmployees();
+    else if (action === 'resetGame') resetGame();
 });
 
 // --------- Заказы ---------
@@ -307,3 +307,4 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
