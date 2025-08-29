@@ -1,6 +1,6 @@
 // --------- Конфигурация игры ---------
 const GAME_CONFIG = {
-    startMoney: 1000,
+    startMoney: 1500,
     startParts: {
         battery: 5,
         motherboard: 2,
@@ -17,7 +17,17 @@ const GAME_CONFIG = {
         case: 25,
         ram: 20
     },
-    upgradeCost: 100,
+    upgradeCost: 100, // апгрейд ускорения сотрудников
+    supplyUpgradeCost: 10000, // стоимость регулярных поставок
+    supplyInterval: 35000,    // интервал поставок в мс (35 сек)
+    supplyAmount: {            // сколько деталей добавляется каждые 35 сек
+        battery: 2,
+        motherboard: 1,
+        cpu: 1,
+        gpu: 1,
+        case: 1,
+        ram: 2
+    },
     employeeSpeedIncrease: 0.5,
     orderInterval: 3000,
     employeeSpeedIncrementEvery: 5,
@@ -34,7 +44,8 @@ let gameState = {
     lastOrderTime: Date.now(),
     orderCount: 0,
     totalOrdersCompleted: 0,
-    currentShopTab: 'parts'
+    currentShopTab: 'parts',
+    supplyActive: false
 };
 
 // --------- DOM элементы ---------
@@ -143,6 +154,13 @@ function renderShop(){
         btn.className='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full';
         btn.dataset.action='upgradeEmployees';
         shopContentElement.appendChild(btn);
+        // Регулярные поставки
+        const btnSupply = document.createElement('button');
+        btnSupply.textContent = `Регулярные поставки (💰${GAME_CONFIG.supplyUpgradeCost})`;
+        btnSupply.className = 'bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-full';
+        btnSupply.dataset.action = 'buySupply';
+        btnSupply.disabled = gameState.money < GAME_CONFIG.supplyUpgradeCost || gameState.supplyActive;
+        shopContentElement.appendChild(btnSupply);
     }
 
     // Кнопка сброса
@@ -161,6 +179,7 @@ shopContentElement.addEventListener('click', e=>{
     if(btn.dataset.action==='buyPart') buyParts(btn.dataset.part, parseInt(btn.dataset.amount));
     else if(btn.dataset.action==='hireEmployee') hireEmployee();
     else if(btn.dataset.action==='upgradeEmployees') upgradeEmployees();
+    else if(btn.dataset.action==='buySupply') buySupply();
     else if(btn.dataset.action==='resetGame') resetGame();
 
     renderShop();
@@ -195,6 +214,29 @@ function upgradeEmployees(){
     } else showNotification('Недостаточно денег','red');
 }
 
+let supplyIntervalId = null; // для хранения интервала поставок
+gameState.supplyActive = false; // активирован ли апгрейд
+
+function buySupply(){
+    if(gameState.money < GAME_CONFIG.supplyUpgradeCost){
+        showNotification('Недостаточно денег','red');
+        return;
+    }
+    gameState.money -= GAME_CONFIG.supplyUpgradeCost;
+    gameState.supplyActive = true;
+
+    // Запускаем регулярные поставки
+    supplyIntervalId = setInterval(() => {
+        for(const part in GAME_CONFIG.supplyAmount){
+            gameState.parts[part] += GAME_CONFIG.supplyAmount[part];
+        }
+        showNotification('Регулярные поставки пополнили склад!','green');
+        updateUI();
+    }, GAME_CONFIG.supplyInterval);
+
+    showNotification('Регулярные поставки активированы!','green');
+}
+
 function resetGame(){
     if(!confirm('Сбросить игру?')) return;
     localStorage.removeItem('gameState');
@@ -211,20 +253,32 @@ function resetGame(){
 
 // --------- Заказы ---------
 const ORDER_TEMPLATES = [
-    {type:'Телефон', partsRequired:{battery:1, cpu:1, ram:1}, initialTime:100, reward:25},
-    {type:'Ноутбук', partsRequired:{battery:2, cpu:1, ram:2, motherboard:1}, initialTime:150, reward:50},
-    {type:'ПК', partsRequired:{cpu:1, gpu:1, ram:2, motherboard:1, case:1}, initialTime:200, reward:75},
-    {type:'Сервер', partsRequired:{cpu:2, ram:4, motherboard:1, case:1, gpu:2}, initialTime:300, reward:150}
+    // Простые заказы
+    { type:'Телефон', minCompleted:0, partsRequired:{battery:1, cpu:1, ram:1}, initialTime:100, reward:25 },
+    { type:'Ноутбук', minCompleted:5, partsRequired:{battery:2, cpu:1, ram:2, motherboard:1}, initialTime:150, reward:50 },
+    { type:'ПК', minCompleted:15, partsRequired:{cpu:1, gpu:1, ram:2, motherboard:1, case:1}, initialTime:200, reward:75 },
+    { type:'Сервер', minCompleted:30, partsRequired:{cpu:2, ram:4, motherboard:1, case:1, gpu:2}, initialTime:300, reward:150 },
+    // Редкий заказ (высокая сложность и награда)
+    { type:'Суперкомпьютер', minCompleted:50, partsRequired:{cpu:4, ram:8, motherboard:2, case:2, gpu:4, battery:5}, initialTime:500, reward:1000, rare:true }
 ];
 
 function createOrder(){
-    let available=[ORDER_TEMPLATES[0]];
-    if(gameState.totalOrdersCompleted>=5) available.push(ORDER_TEMPLATES[1]);
-    if(gameState.totalOrdersCompleted>=15) available.push(ORDER_TEMPLATES[2]);
-    if(gameState.totalOrdersCompleted>=30) available.push(ORDER_TEMPLATES[3]);
-    const tpl=available[Math.floor(Math.random()*available.length)];
+    // Доступные заказы
+    const available = ORDER_TEMPLATES.filter(o => gameState.totalOrdersCompleted >= o.minCompleted);
+
+    // Вероятность редких заказов (например, 10%)
+    const rareOrders = available.filter(o => o.rare);
+    const normalOrders = available.filter(o => !o.rare);
+
+    let tpl;
+    if(rareOrders.length && Math.random() < 0.1){ // 10% шанс редкого заказа
+        tpl = rareOrders[Math.floor(Math.random() * rareOrders.length)];
+    } else {
+        tpl = normalOrders[Math.floor(Math.random() * normalOrders.length)];
+    }
+
     gameState.orders.push({
-        id:gameState.orderCount++,
+        id: gameState.orderCount++,
         type: tpl.type,
         partsRequired: {...tpl.partsRequired},
         initialTime: tpl.initialTime,
@@ -252,15 +306,27 @@ function gameLoop(){
         gameState.lastOrderTime = Date.now();
     }
 
-    const unassigned = gameState.orders.filter(o => o.employeeId === null);
-    const freeEmployees = gameState.employees.filter(e => !e.isBusy);
+const unassigned = gameState.orders.filter(o => o.employeeId === null);
+const freeEmployees = gameState.employees.filter(e => !e.isBusy);
 
-    unassigned.forEach(order=>{
-        const emp = freeEmployees.shift();
-        if(emp && canAssignOrder(order)){
-            assignOrderToEmployee(order, emp);
+unassigned.forEach(order => {
+    // Найдём первого свободного сотрудника, который может выполнить этот заказ
+    for(let i = 0; i < freeEmployees.length; i++){
+        const emp = freeEmployees[i];
+        // Проверка, есть ли все нужные детали
+        const canDo = Object.entries(order.partsRequired).every(([part, qty]) => gameState.parts[part] >= qty);
+        if(canDo){
+            // Назначаем заказ сотруднику
+            Object.entries(order.partsRequired).forEach(([part, qty]) => gameState.parts[part] -= qty);
+            emp.isBusy = true;
+            order.employeeId = emp.id;
+            
+            // Убираем сотрудника из списка свободных
+            freeEmployees.splice(i, 1);
+            break; // Переходим к следующему заказу
         }
-    });
+    }
+});
 
     gameState.orders.forEach(order=>{
         if(order.employeeId !== null){
@@ -321,4 +387,3 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
-
