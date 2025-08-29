@@ -12,8 +12,10 @@ let gameState = {
     partCost: 10,
     currentShopTab: 'parts',
     purchasedUpgrades: [],
-    maxOrders: 5 // по умолчанию
+    maxOrders: 5,
+    autoPartsInterval: null
 };
+
 // --------- Шаблоны заказов ---------
 const ORDER_TEMPLATES = [
     { type: 'Телефон', partsRequired: 1, initialTime: 100, reward: 25 },
@@ -22,6 +24,7 @@ const ORDER_TEMPLATES = [
     { type: 'Сервер', partsRequired: 5, initialTime: 300, reward: 150 }
 ];
 
+// --------- Апгрейды ---------
 const FACTORY_UPGRADES = [
     {
         id: 'fasterOrders',
@@ -70,9 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderListElement = document.getElementById('orderList');
     const shopPartsBtn = document.getElementById('shopPartsBtn');
     const shopEmployeesBtn = document.getElementById('shopEmployeesBtn');
+    const shopUpgradesBtn = document.getElementById('shopUpgradesBtn');
     const shopContentElement = document.getElementById('shopContent');
 
-    // --------- UI обновление (только значения и прогресс) ---------
+    // --------- UI обновление ---------
     function updateUI() {
         moneyElement.textContent = gameState.money;
         partsElement.textContent = gameState.parts;
@@ -130,7 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(btn);
             });
             shopContentElement.appendChild(container);
-        } else {
+        } 
+        else if (gameState.currentShopTab === 'employees') {
             const btn = document.createElement('button');
             btn.textContent = `Нанять сотрудника (💰${gameState.employeeHireCost})`;
             btn.className = 'bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
@@ -138,6 +143,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
             btn.addEventListener('click', hireEmployee);
             shopContentElement.appendChild(btn);
+        }
+        else if (gameState.currentShopTab === 'upgrades') {
+            FACTORY_UPGRADES.forEach(up => {
+                const btn = document.createElement('button');
+                btn.textContent = `${up.name} (💰${up.cost})`;
+                btn.className = 'bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md block mb-2';
+
+                if (gameState.money < up.cost || gameState.purchasedUpgrades.includes(up.id)) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50','cursor-not-allowed');
+                    btn.title = gameState.purchasedUpgrades.includes(up.id) ? 'Уже куплено' : 'Недостаточно денег';
+                }
+
+                btn.addEventListener('click', () => buyUpgrade(up));
+                shopContentElement.appendChild(btn);
+            });
         }
 
         const resetBtn = document.createElement('button');
@@ -147,13 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
         shopContentElement.appendChild(resetBtn);
     }
 
-    // --------- Делегирование вкладок магазина ---------
+    // --------- Вкладки магазина ---------
     shopPartsBtn.addEventListener('click', ()=>{
         gameState.currentShopTab='parts';
         renderShop();
     });
     shopEmployeesBtn.addEventListener('click', ()=>{
         gameState.currentShopTab='employees';
+        renderShop();
+    });
+    shopUpgradesBtn.addEventListener('click', ()=>{
+        gameState.currentShopTab='upgrades';
         renderShop();
     });
 
@@ -237,6 +262,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } else showNotification('Недостаточно денег!','red');
     }
 
+    function buyUpgrade(up){
+        if (gameState.money >= up.cost && !gameState.purchasedUpgrades.includes(up.id)) {
+            gameState.money -= up.cost;
+            up.apply();
+            gameState.purchasedUpgrades.push(up.id);
+            updateUI();
+            renderShop();
+            showNotification(`Куплен апгрейд: ${up.name}`, 'green');
+        }
+    }
+
     // --------- Сброс игры ---------
     function resetGame(){
         if(!confirm('Вы уверены, что хотите сбросить игру? Все данные будут потеряны!')) return;
@@ -254,7 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
             totalOrdersCompleted: 0,
             employeeHireCost: 45,
             partCost: 10,
-            currentShopTab: 'parts'
+            currentShopTab: 'parts',
+            purchasedUpgrades: [],
+            maxOrders: 5,
+            autoPartsInterval: null
         };
 
         const avatar = EMPLOYEE_AVATARS[Math.floor(Math.random()*EMPLOYEE_AVATARS.length)];
@@ -262,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         createOrder();
         updateUI();
+        renderShop();
     }
 
     // --------- Уведомления ---------
