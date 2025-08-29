@@ -10,7 +10,7 @@ const GAME_CONFIG = {
     employeeSpeedIncrease: 0.5,
     orderInterval: 3000,
     employeeSpeedIncrementEvery: 5,
-    maxOrders: 10,
+    maxOrders: 8,
     orderIncreaseCost: 5000,
     employeeMaxSpeed: 10,
     EMPLOYEE_AVATARS: ['👨‍🔧','👩‍🔧','👨‍🔬','👩‍🔬','🧑‍💻','👨‍🏭']
@@ -439,5 +439,6 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
