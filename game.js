@@ -43,30 +43,38 @@ const shopContentElement = document.getElementById('shopContent');
 const PART_ICONS = { battery:'🔋', motherboard:'💻', cpu:'🖥️', gpu:'🎮', case:'🖱️', ram:'📀' };
 
 // --------- UI: сотрудники и заказы ---------
-function renderEmployees(){
-    employeeListElement.innerHTML = '';
-    gameState.employees.forEach((emp, idx) => {
-        const card = document.createElement('div');
-        card.className = 'employee-card p-2 border rounded cursor-grab';
-        card.draggable = !emp.isBusy;
-        card.dataset.empId = emp.id;
+function renderEmployees() {
+    const list = document.getElementById("employeeList");
+    list.innerHTML = "";
+
+    gameState.employees.forEach(emp => {
+        const card = document.createElement("div");
+        card.className = "employee-card p-3 border rounded-lg flex flex-col items-center";
+
+        // Содержание карточки
         card.innerHTML = `
-            <div class="text-4xl mb-2">${emp.avatar}</div>
-            <div class="text-lg font-bold">Сотрудник #${idx + 1}</div>
-            <div class="text-sm text-gray-600 employee-speed">Скорость: ${emp.speed.toFixed(2)}</div>
-            <div class="text-sm text-gray-500 employee-status">${emp.isBusy ? '🛠 Выполняет заказ' : '✅ Свободен'}</div>
-            <div class="text-xs text-gray-400">
-                Перки: ${emp.perks ? 
-                    `+${(emp.perks.speedBonus*100).toFixed(0)}% скорость, ` +
-                    `${(emp.perks.savePartChance*100||0).toFixed(0)}% шанс сэкономить деталь, ` +
-                    `${(emp.perks.breakPartChance*100||0).toFixed(0)}% шанс сломать деталь` +
-                    `+${(emp.perks.bonusReward*100||0).toFixed(0)}% награда, ` +
-                    `+${(emp.perks.expBoost*100||0).toFixed(0)}% к обучению`
-                    : 'Нет'}
+            <div class="flex flex-col items-center">
+                <div class="text-4xl mb-2">${emp.avatar}</div>
+                <h3 class="font-bold text-lg">Сотрудник</h3>
+                <p class="text-sm text-gray-500">Выполнил: ${emp.ordersCompleted}</p>
+            </div>
+            <div class="mt-3 w-full text-left">
+                <h4 class="font-semibold text-sm mb-1">🎁 Перки:</h4>
+                <ul class="text-xs text-gray-700 space-y-1">
+                    ${emp.perks.speedBonus      ? `<li>⚡ +${Math.round(emp.perks.speedBonus*100)}% скорость</li>` : ""}
+                    ${emp.perks.savePartChance  ? `<li>🔧 ${Math.round(emp.perks.savePartChance*100)}% шанс сэкономить деталь</li>` : ""}
+                    ${emp.perks.breakPartChance ? `<li>💥 ${Math.round(emp.perks.breakPartChance*100)}% шанс сломать деталь</li>` : ""}
+                    ${emp.perks.bonusReward     ? `<li>💰 +${Math.round(emp.perks.bonusReward*100)}% награда</li>` : ""}
+                    ${emp.perks.expBoost        ? `<li>📚 +${Math.round(emp.perks.expBoost*100)}% опыт</li>` : ""}
+                </ul>
             </div>
         `;
+
+        // Drag & Drop
+        card.draggable = !emp.isBusy;
         card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', emp.id));
-        employeeListElement.appendChild(card);
+
+        list.appendChild(card);
     });
 }
 
@@ -430,8 +438,3 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
-
-
-
-
-
