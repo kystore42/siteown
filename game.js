@@ -92,6 +92,7 @@ function renderOrders(){
         `;
         orderListElement.appendChild(card);
     });
+    renderOrders();
     setupOrderDragAndDrop();
 }
 
@@ -124,10 +125,16 @@ function updateUI(){
 // --------- Drag & Drop сотрудников на заказы ---------
 function setupOrderDragAndDrop(){
     document.querySelectorAll('.order-card').forEach(card=>{
-        card.addEventListener('dragover', e=>{ e.preventDefault(); card.style.backgroundColor='#f0f0f0'; });
-        card.addEventListener('dragleave', e=>{ card.style.backgroundColor=''; });
+        card.addEventListener('dragover', e=>{
+            e.preventDefault(); 
+            card.classList.add('drag-over');
+        });
+        card.addEventListener('dragleave', e=>{
+            card.classList.remove('drag-over');
+        });
         card.addEventListener('drop', e=>{
-            e.preventDefault(); card.style.backgroundColor='';
+            e.preventDefault();
+            card.classList.remove('drag-over');
             const empId = e.dataTransfer.getData('text/plain');
             assignEmployeeToOrder(empId, parseInt(card.dataset.orderId));
         });
@@ -399,3 +406,4 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
