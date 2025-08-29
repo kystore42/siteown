@@ -31,7 +31,7 @@ const employeeListElement = document.getElementById('employeeList');
 const orderListElement = document.getElementById('orderList');
 const shopPartsBtn = document.getElementById('shopPartsBtn');
 const shopEmployeesBtn = document.getElementById('shopEmployeesBtn');
-const shopUpgradesBtn = document.getElementById('shopUpgradesBtn'); // ✅ новая кнопка
+const shopUpgradesBtn = document.getElementById('shopUpgradesBtn');
 const shopContentElement = document.getElementById('shopContent');
 
 // --------- UI обновление ---------
@@ -48,6 +48,7 @@ function updateUI() {
             <div class="text-4xl mb-2">${emp.avatar}</div>
             <div class="text-lg font-bold">Сотрудник #${index+1}</div>
             <div class="text-sm text-gray-600">Скорость: ${emp.speed.toFixed(2)}</div>
+            <div class="text-sm text-gray-500">${emp.isBusy ? '🛠 Выполняет заказ' : '✅ Свободен'}</div>
         `;
         employeeListElement.appendChild(card);
     });
@@ -104,7 +105,7 @@ function renderShop() {
         btn.dataset.action='hireEmployee';
         shopContentElement.appendChild(btn);
 
-    }else if(gameState.currentShopTab==='upgrades'){ // ✅ новая вкладка
+    }else if(gameState.currentShopTab==='upgrades'){
         const btn=document.createElement('button');
         btn.textContent=`Ускорение сотрудников (💰100)`;
         btn.className='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
@@ -113,7 +114,7 @@ function renderShop() {
             btn.classList.add('opacity-50','cursor-not-allowed');
             btn.title='Недостаточно денег';
         }
-        btn.dataset.action='buyUpgrade';
+        btn.dataset.action='upgradeEmployees';
         shopContentElement.appendChild(btn);
     }
 }
@@ -122,7 +123,7 @@ function renderShop() {
 shopContentElement.addEventListener('click',e=>{
     if(e.target.dataset.action==='buyPart'&&!e.target.disabled) buyPart();
     if(e.target.dataset.action==='hireEmployee'&&!e.target.disabled) hireEmployee();
-    if(e.target.dataset.action==='buyUpgrade'&&!e.target.disabled) buyUpgrade(); // ✅ обработка апгрейда
+    if(e.target.dataset.action==='upgradeEmployees'&&!e.target.disabled) upgradeEmployees();
 });
 
 // --------- Заказы ---------
@@ -202,11 +203,11 @@ function buyPart(){
     }else showNotification('Недостаточно денег!','red');
 }
 
-function buyUpgrade(){
+function upgradeEmployees(){
     if(gameState.money>=100){
         gameState.money-=100;
-        gameState.employees.forEach(emp=>emp.speed+=0.5); // ✅ ускоряем всех
-        showNotification('Все сотрудники стали работать быстрее!','green');
+        gameState.employees.forEach(emp => emp.speed += 0.5);
+        showNotification('Все сотрудники стали быстрее!','green');
         updateUI();
     }else showNotification('Недостаточно денег!','red');
 }
@@ -234,15 +235,19 @@ function loadGame(){
     const s=localStorage.getItem('gameState');
     if(s) gameState=JSON.parse(s);
 
-    // восстановление недостающих полей у сотрудников
     gameState.employees.forEach(emp=>{
         if(emp.isBusy===undefined) emp.isBusy=false;
         if(emp.speed===undefined) emp.speed=1;
         if(emp.ordersCompleted===undefined) emp.ordersCompleted=0;
     });
+
+    if(gameState.employees.length===0){
+        const avatar = EMPLOYEE_AVATARS[Math.floor(Math.random()*EMPLOYEE_AVATARS.length)];
+        gameState.employees.push({id:`emp-${Date.now()}`,isBusy:false,speed:1,ordersCompleted:0,avatar});
+    }
 }
 
-// --------- Слушатели ---------
+// --------- Слушатели вкладок ---------
 shopPartsBtn.addEventListener('click',()=>{
     gameState.currentShopTab='parts';
     renderShop();
@@ -251,7 +256,7 @@ shopEmployeesBtn.addEventListener('click',()=>{
     gameState.currentShopTab='employees';
     renderShop();
 });
-shopUpgradesBtn.addEventListener('click',()=>{ // ✅ теперь работает
+shopUpgradesBtn.addEventListener('click',()=>{
     gameState.currentShopTab='upgrades';
     renderShop();
 });
@@ -260,3 +265,4 @@ shopUpgradesBtn.addEventListener('click',()=>{ // ✅ теперь работа�
 loadGame();
 updateUI();
 setInterval(gameLoop,100);
+setInterval(saveGame,1000);
