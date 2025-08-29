@@ -142,11 +142,11 @@ function renderShop() {
 // --------- Делегирование событий магазина ---------
 shopContentElement.addEventListener('click', e => {
     const btn = e.target.closest('button');
-    if (!btn) return; // 
+    if (!btn) return;
     const action = btn.dataset.action;
     if (!action || btn.disabled) return;
 
-    if (action === 'buyPart') buyPart();
+    if (action === 'buyPart') buyParts(parseInt(btn.dataset.amount));
     else if (action === 'hireEmployee') hireEmployee();
     else if (action === 'upgradeEmployees') upgradeEmployees();
     else if (action === 'resetGame') resetGame();
@@ -309,5 +309,6 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
