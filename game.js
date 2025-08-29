@@ -1,25 +1,35 @@
+// --------- Конфигурация игры ---------
+const GAME_CONFIG = {
+    startMoney: 100,
+    startParts: 10,
+    employeeHireCost: 45,
+    partCost: 10,
+    upgradeCost: 100,
+    employeeSpeedIncrease: 0.5,
+    orderInterval: 3000,
+    orderTemplates: [
+        { type: 'Телефон', partsRequired: 1, initialTime: 100, reward: 25 },
+        { type: 'Ноутбук', partsRequired: 2, initialTime: 150, reward: 50 },
+        { type: 'ПК', partsRequired: 3, initialTime: 200, reward: 75 },
+        { type: 'Сервер', partsRequired: 5, initialTime: 300, reward: 150 }
+    ],
+    employeeSpeedIncrementEvery: 5, // каждый n заказов +1 скорость
+    employeeMaxSpeed: 10
+};
+
 // --------- Игровое состояние ---------
 let gameState = {
-    money: 100,
-    parts: 10,
+    money: GAME_CONFIG.startMoney,
+    parts: GAME_CONFIG.startParts,
     employees: [],
     orders: [],
     lastOrderTime: Date.now(),
-    orderInterval: 3000,
     orderCount: 0,
     totalOrdersCompleted: 0,
-    employeeHireCost: 45,
-    partCost: 10,
+    employeeHireCost: GAME_CONFIG.employeeHireCost,
+    partCost: GAME_CONFIG.partCost,
     currentShopTab: 'parts'
 };
-
-// --------- Шаблоны заказов ---------
-const ORDER_TEMPLATES = [
-    { type: 'Телефон', partsRequired: 1, initialTime: 100, reward: 25 },
-    { type: 'Ноутбук', partsRequired: 2, initialTime: 150, reward: 50 },
-    { type: 'ПК', partsRequired: 3, initialTime: 200, reward: 75 },
-    { type: 'Сервер', partsRequired: 5, initialTime: 300, reward: 150 }
-];
 
 // --------- Аватары сотрудников ---------
 const EMPLOYEE_AVATARS = ['👨‍🔧','👩‍🔧','👨‍🔬','👩‍🔬','🧑‍💻','👨‍🏭'];
@@ -107,9 +117,9 @@ function renderShop() {
 
     }else if(gameState.currentShopTab==='upgrades'){
         const btn=document.createElement('button');
-        btn.textContent=`Ускорение сотрудников (💰100)`;
+        btn.textContent=`Ускорение сотрудников (💰${GAME_CONFIG.upgradeCost})`;
         btn.className='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        if(gameState.money<100){
+        if(gameState.money< GAME_CONFIG.upgradeCost){
             btn.disabled=true;
             btn.classList.add('opacity-50','cursor-not-allowed');
             btn.title='Недостаточно денег';
@@ -128,10 +138,10 @@ shopContentElement.addEventListener('click',e=>{
 
 // --------- Заказы ---------
 function createOrder(){
-    let available=[ORDER_TEMPLATES[0]];
-    if(gameState.totalOrdersCompleted>=5) available.push(ORDER_TEMPLATES[1]);
-    if(gameState.totalOrdersCompleted>=15) available.push(ORDER_TEMPLATES[2]);
-    if(gameState.totalOrdersCompleted>=30) available.push(ORDER_TEMPLATES[3]);
+    let available=[GAME_CONFIG.orderTemplates[0]];
+    if(gameState.totalOrdersCompleted>=5) available.push(GAME_CONFIG.orderTemplates[1]);
+    if(gameState.totalOrdersCompleted>=15) available.push(GAME_CONFIG.orderTemplates[2]);
+    if(gameState.totalOrdersCompleted>=30) available.push(GAME_CONFIG.orderTemplates[3]);
     const tpl=available[Math.floor(Math.random()*available.length)];
     gameState.orders.push({
         id:gameState.orderCount++,
@@ -146,7 +156,7 @@ function createOrder(){
 
 // --------- Игровой цикл ---------
 function gameLoop(){
-    if(Date.now()-gameState.lastOrderTime>gameState.orderInterval){
+    if(Date.now()-gameState.lastOrderTime>GAME_CONFIG.orderInterval){
         createOrder();
         gameState.lastOrderTime=Date.now();
     }
@@ -173,7 +183,7 @@ function gameLoop(){
                 if(emp){
                     emp.isBusy=false;
                     emp.ordersCompleted++;
-                    if(emp.ordersCompleted%5===0) emp.speed+=1;
+                    if(emp.ordersCompleted % GAME_CONFIG.employeeSpeedIncrementEvery === 0 && emp.speed < GAME_CONFIG.employeeMaxSpeed) emp.speed += 1;
                 }
             }
         }
@@ -204,9 +214,9 @@ function buyPart(){
 }
 
 function upgradeEmployees(){
-    if(gameState.money>=100){
-        gameState.money-=100;
-        gameState.employees.forEach(emp => emp.speed += 0.5);
+    if(gameState.money>=GAME_CONFIG.upgradeCost){
+        gameState.money -= GAME_CONFIG.upgradeCost;
+        gameState.employees.forEach(emp => emp.speed += GAME_CONFIG.employeeSpeedIncrease);
         showNotification('Все сотрудники стали быстрее!','green');
         updateUI();
     }else showNotification('Недостаточно денег!','red');
@@ -248,18 +258,9 @@ function loadGame(){
 }
 
 // --------- Слушатели вкладок ---------
-shopPartsBtn.addEventListener('click',()=>{
-    gameState.currentShopTab='parts';
-    renderShop();
-});
-shopEmployeesBtn.addEventListener('click',()=>{
-    gameState.currentShopTab='employees';
-    renderShop();
-});
-shopUpgradesBtn.addEventListener('click',()=>{
-    gameState.currentShopTab='upgrades';
-    renderShop();
-});
+shopPartsBtn.addEventListener('click',()=>{gameState.currentShopTab='parts';renderShop();});
+shopEmployeesBtn.addEventListener('click',()=>{gameState.currentShopTab='employees';renderShop();});
+shopUpgradesBtn.addEventListener('click',()=>{gameState.currentShopTab='upgrades';renderShop();});
 
 // --------- Инициализация ---------
 loadGame();
