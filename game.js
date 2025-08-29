@@ -60,6 +60,8 @@ function renderEmployees(){
                     `+${(emp.perks.speedBonus*100).toFixed(0)}% скорость, ` +
                     `${(emp.perks.savePartChance*100||0).toFixed(0)}% шанс сэкономить деталь, ` +
                     `${(emp.perks.breakPartChance*100||0).toFixed(0)}% шанс сломать деталь` 
+                    `+${(emp.perks.bonusReward*100||0).toFixed(0)}% награда, ` +
+                    `+${(emp.perks.expBoost*100||0).toFixed(0)}% к обучению`
                     : 'Нет'}
             </div>
         `;
@@ -275,15 +277,17 @@ function hireEmployee() {
     const cost = 100;
     if (gameState.money >= cost) {
         gameState.money -= cost;
-
-        const avatar = GAME_CONFIG.EMPLOYEE_AVATARS[
-            Math.floor(Math.random() * GAME_CONFIG.EMPLOYEE_AVATARS.length)
-        ];
-        const perks = {
-            speedBonus: Math.random() < 0.5 ? 0.05 : 0,
-            savePartChance: Math.random() < 0.3 ? 0.3 : 0,
-            breakPartChance: Math.random() < 0.1 ? 0.1 : 0
-        };
+        
+    const avatar = GAME_CONFIG.EMPLOYEE_AVATARS[
+        Math.floor(Math.random() * GAME_CONFIG.EMPLOYEE_AVATARS.length)
+    ];
+    const perks = {
+        speedBonus: Math.random() < 0.5 ? 0.05 : 0,        // +5% скорость
+        savePartChance: Math.random() < 0.3 ? 0.3 : 0,     // 30% шанс сэкономить деталь
+        breakPartChance: Math.random() < 0.1 ? 0.1 : 0,    // 10% шанс сломать деталь
+        bonusReward: Math.random() < 0.2 ? 0.2 : 0,        // 20% больше награда
+        expBoost: Math.random() < 0.25 ? 0.5 : 0           // 50% быстрее учится
+};
 
         gameState.employees.push({
             id: `emp-${Date.now()}`,
@@ -422,6 +426,7 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
 
