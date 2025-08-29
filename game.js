@@ -49,7 +49,7 @@ function updateUI() {
     moneyElement.textContent = gameState.money;
     partsElement.textContent = gameState.parts;
 
-    // сотрудники
+    // Сотрудники
     employeeListElement.innerHTML = '';
     gameState.employees.forEach((emp,index)=>{
         const card = document.createElement('div');
@@ -63,12 +63,12 @@ function updateUI() {
         employeeListElement.appendChild(card);
     });
 
-    // заказы
+    // Заказы
     orderListElement.innerHTML='';
     gameState.orders.forEach(order=>{
         const card = document.createElement('div');
         card.className=`order-card ${order.employeeId!==null?'assigned':''}`;
-        const progressPercent = 100 - (order.timeRemaining/order.initialTime)*100;
+        const progressPercent = Math.min(100, 100 - (order.timeRemaining/order.initialTime)*100);
         let progressColor='#10b981';
         if(progressPercent>50) progressColor='#facc15';
         if(progressPercent>90) progressColor='#ef4444';
@@ -92,18 +92,21 @@ function renderShop() {
     shopContentElement.innerHTML='';
 
     if(gameState.currentShopTab==='parts'){
-        const btn=document.createElement('button');
-        btn.textContent=`Купить деталь (💰${gameState.partCost})`;
-        btn.className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
-        if(gameState.money<gameState.partCost){
-            btn.disabled=true;
-            btn.classList.add('opacity-50','cursor-not-allowed');
-            btn.title='Недостаточно денег';
-        }
-        btn.dataset.action='buyPart';
-        shopContentElement.appendChild(btn);
+        const container = document.createElement('div');
+        container.className = 'flex gap-2 flex-wrap';
+        [1,5,10].forEach(amount=>{
+            const btn = document.createElement('button');
+            btn.textContent = `Купить ${amount} 🔋 (💰${gameState.partCost*amount})`;
+            btn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md';
+            btn.disabled = gameState.money < gameState.partCost*amount;
+            if(btn.disabled) btn.classList.add('opacity-50','cursor-not-allowed');
+            btn.dataset.action = 'buyPart';
+            btn.dataset.amount = amount;
+            container.appendChild(btn);
+        });
+        shopContentElement.appendChild(container);
 
-    }else if(gameState.currentShopTab==='employees'){
+    } else if(gameState.currentShopTab==='employees'){
         const btn=document.createElement('button');
         btn.textContent=`Нанять сотрудника (💰${gameState.employeeHireCost})`;
         btn.className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
@@ -115,7 +118,7 @@ function renderShop() {
         btn.dataset.action='hireEmployee';
         shopContentElement.appendChild(btn);
 
-    }else if(gameState.currentShopTab==='upgrades'){
+    } else if(gameState.currentShopTab==='upgrades'){
         const btn=document.createElement('button');
         btn.textContent=`Ускорение сотрудников (💰${GAME_CONFIG.upgradeCost})`;
         btn.className='bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md';
@@ -127,19 +130,23 @@ function renderShop() {
         btn.dataset.action='upgradeEmployees';
         shopContentElement.appendChild(btn);
     }
+
+    // Кнопка сброса
     const resetBtn = document.createElement('button');
-resetBtn.textContent = 'Сбросить игру';
-resetBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md mt-4';
-resetBtn.dataset.action = 'resetGame';
-shopContentElement.appendChild(resetBtn);
+    resetBtn.textContent='Сбросить игру';
+    resetBtn.className='bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md mt-4';
+    resetBtn.dataset.action='resetGame';
+    shopContentElement.appendChild(resetBtn);
 }
 
-    
 // --------- Делегирование событий магазина ---------
-shopContentElement.addEventListener('click',e=>{
-    if(e.target.dataset.action==='buyPart'&&!e.target.disabled) buyPart();
-    if(e.target.dataset.action==='hireEmployee'&&!e.target.disabled) hireEmployee();
-    if(e.target.dataset.action==='upgradeEmployees'&&!e.target.disabled) upgradeEmployees();
+shopContentElement.addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+
+    if(btn.dataset.action==='buyPart' && !btn.disabled) buyParts(Number(btn.dataset.amount));
+    if(btn.dataset.action==='hireEmployee' && !btn.disabled) hireEmployee();
+    if(btn.dataset.action==='upgradeEmployees' && !btn.disabled) upgradeEmployees();
     if(btn.dataset.action==='resetGame') resetGame();
 });
 
@@ -209,15 +216,16 @@ function hireEmployee(){
         gameState.employees.push({id:`emp-${Date.now()}`,isBusy:false,speed:1,ordersCompleted:0,avatar});
         gameState.employeeHireCost+=20;
         updateUI();
-    }else showNotification('Недостаточно денег!','red');
+    } else showNotification('Недостаточно денег!','red');
 }
 
-function buyPart(){
-    if(gameState.money>=gameState.partCost){
-        gameState.money-=gameState.partCost;
-        gameState.parts+=1;
+function buyParts(amount){
+    const totalCost = gameState.partCost * amount;
+    if(gameState.money>=totalCost){
+        gameState.money -= totalCost;
+        gameState.parts += amount;
         updateUI();
-    }else showNotification('Недостаточно денег!','red');
+    } else showNotification('Недостаточно денег!','red');
 }
 
 function upgradeEmployees(){
@@ -226,7 +234,32 @@ function upgradeEmployees(){
         gameState.employees.forEach(emp => emp.speed += GAME_CONFIG.employeeSpeedIncrease);
         showNotification('Все сотрудники стали быстрее!','green');
         updateUI();
-    }else showNotification('Недостаточно денег!','red');
+    } else showNotification('Недостаточно денег!','red');
+}
+
+function resetGame(){
+    if(!confirm('Вы уверены, что хотите сбросить игру? Все данные будут потеряны!')) return;
+
+    localStorage.removeItem('gameState');
+
+    gameState = {
+        money: GAME_CONFIG.startMoney,
+        parts: GAME_CONFIG.startParts,
+        employees: [],
+        orders: [],
+        lastOrderTime: Date.now(),
+        orderCount: 0,
+        totalOrdersCompleted: 0,
+        employeeHireCost: GAME_CONFIG.employeeHireCost,
+        partCost: GAME_CONFIG.partCost,
+        currentShopTab: 'parts'
+    };
+
+    const avatar = EMPLOYEE_AVATARS[Math.floor(Math.random()*EMPLOYEE_AVATARS.length)];
+    gameState.employees.push({id:`emp-${Date.now()}`,isBusy:false,speed:1,ordersCompleted:0,avatar});
+
+    createOrder();
+    updateUI();
 }
 
 // --------- Уведомления ---------
@@ -247,7 +280,7 @@ function showNotification(msg,color){
 }
 
 // --------- Сохранение/Загрузка ---------
-function saveGame(){localStorage.setItem('gameState',JSON.stringify(gameState))}
+function saveGame(){localStorage.setItem('gameState',JSON.stringify(gameState));}
 function loadGame(){
     const s=localStorage.getItem('gameState');
     if(s) gameState=JSON.parse(s);
@@ -274,4 +307,3 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
-
