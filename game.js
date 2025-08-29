@@ -1,6 +1,6 @@
 // --------- Конфигурация игры ---------
 const GAME_CONFIG = {
-    startMoney: 1500,
+    startMoney: 90000,
     startParts: { battery: 5, motherboard: 5, cpu: 5, gpu: 5, case: 5, ram: 5 },
     partCost: { battery: 10, motherboard: 50, cpu: 40, gpu: 100, case: 25, ram: 20 },
     upgradeCost: 100,
@@ -439,6 +439,7 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
 
