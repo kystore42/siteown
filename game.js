@@ -3,11 +3,11 @@ const GAME_CONFIG = {
     startMoney: 1500,
     startParts: {
         battery: 5,
-        motherboard: 2,
-        cpu: 2,
-        gpu: 1,
-        case: 1,
-        ram: 4
+        motherboard: 5,
+        cpu: 5,
+        gpu: 5,
+        case: 5,
+        ram: 5
     },
     partCost: {
         battery: 10,
@@ -408,3 +408,4 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
