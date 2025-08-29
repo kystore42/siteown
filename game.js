@@ -127,13 +127,20 @@ function renderShop() {
         btn.dataset.action='upgradeEmployees';
         shopContentElement.appendChild(btn);
     }
+    const resetBtn = document.createElement('button');
+resetBtn.textContent = 'Сбросить игру';
+resetBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md mt-4';
+resetBtn.dataset.action = 'resetGame';
+shopContentElement.appendChild(resetBtn);
 }
 
+    
 // --------- Делегирование событий магазина ---------
 shopContentElement.addEventListener('click',e=>{
     if(e.target.dataset.action==='buyPart'&&!e.target.disabled) buyPart();
     if(e.target.dataset.action==='hireEmployee'&&!e.target.disabled) hireEmployee();
     if(e.target.dataset.action==='upgradeEmployees'&&!e.target.disabled) upgradeEmployees();
+    if(btn.dataset.action==='resetGame') resetGame();
 });
 
 // --------- Заказы ---------
@@ -267,3 +274,4 @@ loadGame();
 updateUI();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
