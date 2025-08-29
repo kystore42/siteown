@@ -68,7 +68,7 @@ function renderEmployees(){
     });
 }
 
-function renderOrders(){
+function renderOrders() {
     orderListElement.innerHTML = '';
     gameState.orders.forEach(order => {
         const card = document.createElement('div');
@@ -76,7 +76,7 @@ function renderOrders(){
         card.dataset.orderId = order.id;
 
         const partsText = Object.entries(order.partsRequired)
-            .map(([p,qty])=>`${PART_ICONS[p]} x${qty}`).join(' ');
+            .map(([p, qty]) => `${PART_ICONS[p]} x${qty}`).join(' ');
 
         card.innerHTML = `
             <div class="font-semibold">Заказ #${order.id}</div>
@@ -84,15 +84,16 @@ function renderOrders(){
             <div>Награда: 💰${order.reward}</div>
             <div>Нужно деталей: ${partsText}</div>
             <div class="progress-bar-container" style="width:100%; background:#ccc; border-radius:4px;">
-                <div class="progress-bar" style="width:0%;background-color:#10b981;height:8px;border-radius:4px;"></div>
+                <div class="progress-bar" style="width:${100 - (order.timeRemaining / order.initialTime) * 100}%;
+                    background-color:#10b981;height:8px;border-radius:4px;"></div>
             </div>
-            <div class="order-employee" style="margin-top:4px; color:${order.employeeId?'#10b981':'#999'}">
-                ${order.employeeId ? `В работе: ${gameState.employees.find(e=>e.id===order.employeeId)?.avatar}` : 'Свободен'}
+            <div class="order-employee" style="margin-top:4px; color:${order.employeeId ? '#10b981' : '#999'}">
+                ${order.employeeId ? `В работе: ${gameState.employees.find(e => e.id === order.employeeId)?.avatar}` : 'Свободен'}
             </div>
         `;
         orderListElement.appendChild(card);
     });
-    renderOrders();
+
     setupOrderDragAndDrop();
 }
 
@@ -421,5 +422,6 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
 
