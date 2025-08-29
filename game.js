@@ -388,9 +388,9 @@ function gameLoop() {
                 if (emp.ordersCompleted % GAME_CONFIG.employeeSpeedIncrementEvery === 0 &&
                     emp.speed < GAME_CONFIG.employeeMaxSpeed) {
                     emp.speed += 1;
-                renderEmployees();
+                
                 }
-
+                renderEmployees();
                 order.completed = true; // пометка, что заказ готов к удалению
             }
         }
@@ -439,4 +439,5 @@ renderOrders();
 renderShop();
 setInterval(gameLoop,100);
 setInterval(saveGame,1000);
+
 
