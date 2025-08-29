@@ -1,6 +1,7 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f3f4f6;
+    color: #111827;
 }
 
 .container {
@@ -9,7 +10,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 20px;
 }
@@ -31,7 +32,7 @@ body {
 }
 
 .order-card {
-    background-color: #ffffff;
+    background: linear-gradient(to bottom right, #ffffff, #f9fafb);
     border-radius: 12px;
     padding: 16px;
     width: 200px;
@@ -50,12 +51,18 @@ body {
 }
 
 .employee-card {
-    background-color: #e5e7eb;
+    background: linear-gradient(to bottom right, #e5e7eb, #f3f4f6);
     border-radius: 12px;
     padding: 12px;
     width: 180px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.employee-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
 .progress-bar-container {
@@ -70,6 +77,7 @@ body {
 .progress-bar {
     height: 100%;
     transition: width 0.1s linear;
+    background: linear-gradient(90deg, #10b981, #059669);
 }
 
 .shop-container {
@@ -82,4 +90,30 @@ body {
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     margin-bottom: 20px;
+}
+
+.shop-container button {
+    transition: all 0.2s ease-in-out;
+}
+
+.shop-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+/* Кнопка сброса */
+.reset-btn {
+    background-color: #ef4444;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    transition: all 0.2s;
+    margin-top: 20px;
+}
+
+.reset-btn:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
