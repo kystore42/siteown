@@ -31,6 +31,8 @@ const GAME_CONFIG = {
     employeeSpeedIncrease: 0.5,
     orderInterval: 3000,
     employeeSpeedIncrementEvery: 5,
+    maxOrders: 10,         // стартовый максимум заказов
+    orderIncreaseCost: 5000, // стоимость апгрейда для расширения
     employeeMaxSpeed: 10,
     EMPLOYEE_AVATARS: ['👨‍🔧','👩‍🔧','👨‍🔬','👩‍🔬','🧑‍💻','👨‍🏭']
 };
@@ -161,6 +163,12 @@ function renderShop(){
         btnSupply.dataset.action = 'buySupply';
         btnSupply.disabled = gameState.money < GAME_CONFIG.supplyUpgradeCost || gameState.supplyActive;
         shopContentElement.appendChild(btnSupply);
+        const btnExpandOrders = document.createElement('button');
+        btnExpandOrders.textContent = `Расширить лимит заказов (💰${GAME_CONFIG.orderIncreaseCost})`;
+        btnExpandOrders.className = 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full mt-2';
+        btnExpandOrders.dataset.action = 'expandOrders';
+        btnExpandOrders.disabled = gameState.money < GAME_CONFIG.orderIncreaseCost;
+        shopContentElement.appendChild(btnExpandOrders);
     }
 
     // Кнопка сброса
@@ -181,6 +189,7 @@ shopContentElement.addEventListener('click', e=>{
     else if(btn.dataset.action==='upgradeEmployees') upgradeEmployees();
     else if(btn.dataset.action==='buySupply') buySupply();
     else if(btn.dataset.action==='resetGame') resetGame();
+    else if(btn.dataset.action==='expandOrders') expandOrders();
 
     renderShop();
 });
@@ -236,6 +245,17 @@ function buySupply(){
 
     showNotification('Регулярные поставки активированы!','green');
 }
+function expandOrders(){
+    if(gameState.money >= GAME_CONFIG.orderIncreaseCost){
+        gameState.money -= GAME_CONFIG.orderIncreaseCost;
+        GAME_CONFIG.maxOrders += 5; // увеличиваем лимит на 5
+        showNotification('Лимит заказов увеличен!','green');
+        renderShop();
+        updateUI();
+    } else {
+        showNotification('Недостаточно денег','red');
+    }
+}
 
 function resetGame(){
     if(!confirm('Сбросить игру?')) return;
@@ -264,6 +284,7 @@ const ORDER_TEMPLATES = [
 
 function createOrder(){
     // Доступные заказы
+    if(gameState.orders.length >= GAME_CONFIG.maxOrders) return;
     const available = ORDER_TEMPLATES.filter(o => gameState.totalOrdersCompleted >= o.minCompleted);
 
     // Вероятность редких заказов (например, 10%)
