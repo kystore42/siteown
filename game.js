@@ -524,15 +524,30 @@ function gameLoop() {
     saveGame();
 }
 
-// --------- Сохранение/загрузка ---------
-function saveGame(){ localStorage.setItem('gameState',JSON.stringify(gameState)); }
-function loadGame(){
+const GAME_VERSION = '0.0.2'; 
+
+function saveGame() {
+    const stateToSave = { ...gameState, _version: GAME_VERSION };
+    localStorage.setItem('gameState', JSON.stringify(stateToSave));
+}
+
+function loadGame() {
     const saved = localStorage.getItem('gameState');
-    if(saved){ gameState = JSON.parse(saved);
-        gameState.employees.forEach(emp=>{
-            if(emp.isBusy===undefined) emp.isBusy=false;
-            if(emp.speed===undefined) emp.speed=1;
-            if(emp.ordersCompleted===undefined) emp.ordersCompleted=0;
+    if (saved) {
+        const parsed = JSON.parse(saved);
+
+        if (parsed._version !== GAME_VERSION) {
+            localStorage.removeItem('gameState');
+            return;
+        }
+
+        gameState = parsed;
+
+        gameState.employees.forEach(emp => {
+            if (emp.isBusy === undefined) emp.isBusy = false;
+            if (emp.speed === undefined) emp.speed = 1;
+            if (emp.ordersCompleted === undefined) emp.ordersCompleted = 0;
+            if (emp.autoWork === undefined) emp.autoWork = false;
         });
     }
 }
