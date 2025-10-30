@@ -4,231 +4,65 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WSD Service</title>
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon.png" type="image/png">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-/* ---------- Базовые стили ---------- */
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f3f4f6;
-    color: #111827;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 20px;
-}
-
-.game-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 20px;
-}
-
-.order-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    min-height: 100px;
-}
-
-/* ---------- Сотрудники ---------- */
-.employee-card {
-    background: linear-gradient(to bottom right, #e5e7eb, #f3f4f6);
-    border-radius: 12px;
-    padding: 12px;
-    width: 180px;
-    flex: 0 0 200px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-    cursor: grab;
-    user-select: none;
-    position: relative;
-}
-.employee-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-}
-.employee-card:active {
-    cursor: grabbing;
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    z-index: 100;
-}
-
-/* ---------- Drag & Drop эффекты ---------- */
-.employee-card.dragging {
-    opacity: 0.8;
-    transform: scale(1.1);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-    z-index: 1000;
-}
-.employee-card.dragging::after {
-    content: "Перетащи на заказ";
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: #10b981;
-    opacity: 1;
-}
-
-/* ---------- Заказы ---------- */
-.order-card {
-    background: linear-gradient(to bottom right, #ffffff, #f9fafb);
-    border-radius: 12px;
-    flex: 0 0 200px;
-    padding: 16px;
-    width: 200px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, border-color 0.2s;
-    border: 2px solid transparent;
-}
-.order-card.assigned {
-    border-color: #2563eb;
-}
-.order-card.drag-over {
-    background-color: #d1f7d1;
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    border-color: #10b981;
-}
-.order-card:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 10px 16px rgba(0,0,0,0.2);
-}
-
-/* ---------- Прогресс-бар ---------- */
-.progress-bar-container {
-    width: 100%;
-    background-color: #d1d5db;
-    border-radius: 9999px;
-    height: 8px;
-    overflow: hidden;
-    margin-top: 8px;
-}
-.progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #10b981, #059669);
-    border-radius: 9999px;
-    transition: width 0.2s ease-in-out;
-}
-
-/* ---------- Кнопки ---------- */
-button {
-    transition: all 0.2s ease-in-out;
-}
-button:hover {
-    transform: scale(1.05);
-}
-
-/* ---------- Магазин ---------- */
-.shop-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 1200px;
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-.shop-container button {
-    transition: all 0.2s ease-in-out;
-}
-.shop-container button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-}
-
-/* ---------- Сброс игры ---------- */
-.reset-btn {
-    background-color: #ef4444;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 9999px;
-    transition: all 0.2s;
-    margin-top: 20px;
-}
-.reset-btn:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* ---------- Общие контейнеры ---------- */
-#employeeList, #orderList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔧 WSD Service</h1>
+    </div>
 
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-lg mt-8 mb-8">
-    <h1 class="text-4xl font-extrabold text-center mb-6 text-gray-800">WSD Service</h1>
-    <p class="text-xl text-center text-gray-600 mb-8">Симулятор сервисного центра</p>
-
-    <!-- Stats Panel -->
-    <div class="w-full flex justify-center items-center mb-8 p-4 bg-gray-50 rounded-lg shadow-inner space-x-8">
-        <div class="flex items-center">
-            <span class="text-3xl mr-2">💰</span>
-            <span id="money" class="text-3xl font-bold text-green-700">0</span>
+    <div class="stats-panel">
+        <div class="stat-card">
+            <div class="stat-label">💰 Деньги</div>
+            <div class="stat-value" id="money">0</div>
         </div>
-        <div class="flex items-center">
-            <span id="parts" class="text-3xl font-bold text-gray-700">0</span>
+        <div class="stat-card">
+            <div class="stat-label">📦 Детали</div>
+            <div class="stat-value" id="parts">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">✅ Выполнено</div>
+            <div class="stat-value" id="completed">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">⚡ Комбо</div>
+            <div class="stat-value" id="combo">0x</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🏆 Престиж</div>
+            <div class="stat-value" id="prestige">0</div>
         </div>
     </div>
 
-    <!-- Shop -->
-    <div class="shop-container mb-8">
-        <h2 class="text-2xl font-semibold text-center mb-4">Магазин</h2>
-        <div class="flex justify-center mb-4 space-x-4">
-            <button id="shopPartsBtn" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition-colors duration-200 hover:bg-blue-600">Детали</button>
-            <button id="shopEmployeesBtn" class="bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full transition-colors duration-200 hover:bg-gray-400">Сотрудники</button>
-            <button id="shopUpgradesBtn" class="bg-green-500 hover:bg-green-600 font-bold text-white py-2 px-6 rounded-full transition-colors duration-200">Улучшения</button>
+    <div class="game-grid">
+        <div class="employees-section">
+            <h2 class="section-title">👥 Сотрудники</h2>
+            <div id="employeeList"></div>
         </div>
-        <div id="shopContent" class="flex flex-col space-y-4 items-center"></div>
-    </div>
 
-<!-- Employees and Orders -->
-<div class="game-area flex flex-col md:flex-row justify-between w-full gap-4">
-    <!-- Employees -->
-    <div class="w-full md:w-1/3 p-4 bg-white rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Сотрудники</h2>
-        <div id="employeeList" class="flex flex-wrap items-center gap-4"></div>
-    </div>
+        <div class="orders-section">
+            <h2 class="section-title">📋 Заказы</h2>
+            <div class="orders-grid" id="orderList"></div>
+        </div>
 
-    <!-- Orders -->
-    <div class="w-full md:w-2/3 p-4 bg-white rounded-lg shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Заказы</h2>
-        <div id="orderList" class="flex flex-wrap justify-center gap-4"></div>
+        <div class="shop-section">
+            <h2 class="section-title">🏪 Магазин</h2>
+            <div class="shop-tabs">
+                <div class="shop-tab active" data-tab="parts">Детали</div>
+                <div class="shop-tab" data-tab="employees">Сотрудники</div>
+                <div class="shop-tab" data-tab="upgrades">Улучшения</div>
+                <div class="shop-tab" data-tab="achievements">Достижения</div>
+            </div>
+            <div id="shopContent"></div>
+        </div>
     </div>
 </div>
+
+<div class="events-banner" id="eventsBanner"></div>
+<div id="notificationContainer"></div>
+<div id="particleContainer"></div>
 
 <script src="game.js"></script>
 </body>
 </html>
-
-
-
-
