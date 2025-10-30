@@ -1,4 +1,4 @@
-# 🔧 WSD Service - Enhanced Edition
+# 🔧 WSD Service
 
 <div align="center">
 
